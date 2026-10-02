@@ -169,6 +169,10 @@ def last_text(path):
 # One persistent helper session per bridged session. It runs on the user's own Claude login with
 # Remote Control on and may only call AskUserQuestion, so requests show up in the Claude mobile app
 # as native prompts and the whole question/answer history stays in one conversation.
+def is_relay(info):
+    return os.path.realpath(info.get("cwd", "")) == os.path.realpath(RELAY)
+
+
 def tmux(*a):
     return subprocess.run(("tmux",) + a, capture_output=True, text=True)
 
@@ -390,7 +394,7 @@ def hook(*flags):
 
 # ----------------------------------------------------------------- CLI side
 def resolve(key):
-    ls = {s: i for s, i in live().items() if i.get("cwd") != RELAY}
+    ls = {s: i for s, i in live().items() if not is_relay(i)}
     hits = [s for s, i in ls.items()
             if s.startswith(key) or key.lower() in os.path.basename(i.get("cwd", "")).lower()]
     if len(hits) != 1:
@@ -401,7 +405,7 @@ def resolve(key):
 
 def cmd_ls():
     for sid, i in sorted(live().items(), key=lambda kv: kv[1].get("cwd", "")):
-        if i.get("cwd") == RELAY:  # ccb's own relay sessions
+        if is_relay(i):  # ccb's own relay sessions
             continue
         p = pending(sid)
         bridged = alive(read(os.path.join(ROOT, sid, "waiter.pid"))) or p
