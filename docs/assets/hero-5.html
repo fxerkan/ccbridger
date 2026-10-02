@@ -1,0 +1,33 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>ccbridge hero 5 — arc</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=JetBrains+Mono:wght@400;500&family=Schibsted+Grotesk:wght@500&display=block" rel="stylesheet">
+<style>
+/* Arc: night indigo, one lime line. The bridge is the picture. */
+html,body{margin:0;background:#140f2a}
+*{box-sizing:border-box}
+.hero{width:1000px;height:420px;position:relative;overflow:hidden;background:#140f2a;color:#efeaff;
+  font-family:"Schibsted Grotesk",sans-serif}
+svg.arc{position:absolute;inset:0}
+h1{position:absolute;left:0;right:0;top:150px;margin:0;text-align:center;font-family:"Bricolage Grotesque",sans-serif;
+  font-weight:800;font-size:92px;line-height:1;letter-spacing:-.035em}
+h1 span{color:#c6ff3a}
+p{position:absolute;left:0;right:0;top:262px;margin:0;text-align:center;font-size:23px;font-weight:500;color:#cfc6f2}
+.end{position:absolute;bottom:34px;font-family:"JetBrains Mono",monospace;font-size:13px;color:#a79bd6;width:200px}
+.end.l{left:54px}.end.r{right:54px;text-align:right}
+.end b{display:block;color:#efeaff;font-weight:500;font-size:14px;margin-bottom:3px}
+</style></head><body>
+<div class="hero">
+  <svg class="arc" width="1000" height="420" viewBox="0 0 1000 420" fill="none">
+    <path d="M92 300 C 92 -40, 908 -40, 908 300" stroke="#c6ff3a" stroke-width="3" stroke-linecap="round"/>
+    <!-- terminal -->
+    <rect x="62" y="276" width="60" height="46" rx="9" fill="#140f2a" stroke="#efeaff" stroke-width="2.5"/>
+    <path d="M76 291l8 8-8 8M92 308h14" stroke="#c6ff3a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- phone -->
+    <rect x="886" y="266" width="44" height="68" rx="11" fill="#140f2a" stroke="#efeaff" stroke-width="2.5"/>
+    <path d="M899 300l6 6 11-13" stroke="#c6ff3a" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <h1>cc<span>bridge</span></h1>
+  <p>Your Bedrock coding sessions, in your pocket.</p>
+  <div class="end l"><b>the terminal</b>asks before it acts</div>
+  <div class="end r"><b>your phone</b>answers from anywhere</div>
+</div></body></html>

@@ -1,0 +1,45 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>ccbridge hero 4 — paper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Brygada+1918:ital,wght@0,500;1,500&family=JetBrains+Mono:wght@400;600&family=Schibsted+Grotesk:wght@500;600&display=block" rel="stylesheet">
+<style>
+/* Paper: warm cream, ink, one cobalt. A sentence and a single decision. */
+html,body{margin:0;background:#f3eee4}
+*{box-sizing:border-box}
+.hero{width:1000px;height:420px;position:relative;overflow:hidden;background:#f3eee4;color:#1a1915;
+  font-family:"Schibsted Grotesk",sans-serif}
+.mark{position:absolute;left:56px;top:40px;display:flex;align-items:center;gap:10px;
+  font-family:"JetBrains Mono",monospace;font-weight:600;font-size:17px;letter-spacing:-.01em}
+.mark svg{display:block}
+h1{position:absolute;left:56px;top:104px;margin:0;width:590px;font-family:"Brygada 1918",serif;font-weight:500;
+  font-size:66px;line-height:1.02;letter-spacing:-.025em;text-wrap:balance}
+h1 i{color:#1d3fe0}
+.cmd{position:absolute;left:56px;bottom:44px;font-family:"JetBrains Mono",monospace;font-size:15px;color:#4a463d}
+.cmd b{color:#1a1915;font-weight:600}
+.note{position:absolute;left:330px;bottom:45px;font-size:14.5px;font-weight:500;color:#5a554a}
+
+.phone{position:absolute;right:86px;top:38px;width:214px;height:344px;border:2px solid #1a1915;border-radius:34px;
+  background:#fbf8f2;box-shadow:0 22px 40px -18px rgba(26,25,21,.35)}
+.phone::before{content:"";position:absolute;left:50%;top:14px;width:56px;height:6px;margin-left:-28px;border-radius:3px;background:#1a1915}
+.ask{position:absolute;left:22px;right:22px;top:62px;font-family:"JetBrains Mono",monospace;font-size:12px;line-height:1.5;color:#4a463d}
+.ask b{display:block;margin-top:8px;color:#1a1915;font-weight:600;font-size:13px}
+.btn{position:absolute;left:20px;right:20px;height:56px;border-radius:15px;display:flex;align-items:center;justify-content:center;
+  font-size:19px;font-weight:600;letter-spacing:-.005em}
+.yes{bottom:92px;background:#1d3fe0;color:#fbf8f2;box-shadow:0 10px 16px -10px rgba(26,25,21,.55)}
+.no{bottom:24px;border:1.5px solid #1a1915;color:#1a1915}
+</style></head><body>
+<div class="hero">
+  <div class="mark">
+    <svg width="26" height="26" viewBox="0 0 26 26" fill="none" stroke="#1a1915" stroke-width="2.2" stroke-linecap="round">
+      <path d="M4 18 C4 6 22 6 22 18" stroke="#1d3fe0"/><path d="M4 15v6M22 15v6M8 21h10"/>
+    </svg>ccbridge
+  </div>
+  <h1>Your Bedrock coding sessions, <i>in your pocket.</i></h1>
+  <div class="cmd">$ <b>ccb install --global</b></div>
+  <div class="note">No server. No open ports. One Python file.</div>
+
+  <div class="phone">
+    <div class="ask">infra wants to run<b>terraform apply</b></div>
+    <div class="btn yes">Approve</div>
+    <div class="btn no">Reject</div>
+  </div>
+</div></body></html>
