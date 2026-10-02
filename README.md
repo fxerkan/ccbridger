@@ -1,6 +1,11 @@
-# ccbridge
+<p align="center">
+  <img src="https://raw.githubusercontent.com/fxerkan/ccbridge/main/docs/assets/hero-2.png" alt="ccbridge — a Bedrock terminal session waiting for approval, and the same request as a prompt in the Claude mobile app" width="820">
+</p>
 
-**Your Bedrock coding sessions, in your pocket.**
+# cc**bridge**
+
+> **Your Bedrock coding sessions, in your pocket.**
+> No server, no open ports, one Python file.
 
 Claude Code's Remote Control only works when you are signed in with a Claude subscription. Sessions that
 run through **AWS Bedrock** (or Vertex / Foundry) are stuck in the terminal where you started them: walk
