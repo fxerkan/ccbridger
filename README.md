@@ -1,15 +1,15 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/fxerkan/ccbridge/main/docs/assets/hero-2.png" alt="ccbridge — a Bedrock terminal session waiting for approval, and the same request as a prompt in the Claude mobile app" width="820">
+  <img src="https://raw.githubusercontent.com/fxerkan/ccbridge/main/docs/assets/hero-7.jpg" alt="ccBridger — Remote Control for API-based Claude Code sessions on Bedrock, Vertex and Foundry" width="820">
 </p>
 
-# cc**bridge**
+# ccBridg**er**
 
-> **Your Bedrock coding sessions, in your pocket.**
-> No server, no open ports, one Python file.
+> **Remote Control for API-based Claude Code sessions — Bedrock, Vertex, Foundry.**
+> In your pocket. No server, no open ports, one Python file.
 
 Claude Code's Remote Control only works when you are signed in with a Claude subscription. Sessions that
-run through **AWS Bedrock** (or Vertex / Foundry) are stuck in the terminal where you started them: walk
-away from the desk and a single permission prompt stalls the whole job.
+run through an API provider — **AWS Bedrock, Google Vertex AI or Microsoft Foundry** — are stuck in the
+terminal where you started them: walk away from the desk and a single permission prompt stalls the whole job.
 
 `ccb` bridges that gap. It lets you watch those sessions, approve or reject their permission prompts,
 answer their questions and send them new instructions **from the Claude mobile app** — with no server,
