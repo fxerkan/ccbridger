@@ -11,18 +11,33 @@ Claude Code's Remote Control only works when you are signed in with a Claude sub
 run through an API provider — **AWS Bedrock, Google Vertex AI or Microsoft Foundry** — are stuck in the
 terminal where you started them: walk away from the desk and a single permission prompt stalls the whole job.
 
-`ccb` bridges that gap. It lets you watch those sessions, approve or reject their permission prompts,
-answer their questions and send them new instructions **from the Claude mobile app** — with no server,
-no open ports and no extra account. One Python file, standard library only.
+`ccbridger` (short: `ccb`) bridges that gap. It lets you watch those sessions, approve or reject their
+permission prompts, answer their questions and send them new instructions **from the Claude mobile app** —
+with no server, no open ports and no extra account. One Python file, standard library only.
 
 ```
- terminal (Bedrock)                         your Mac / Linux box                    your phone
+ terminal (API provider)                    your Mac / Linux box                    your phone
 ┌────────────────────┐  hooks   ┌──────────────────────────────┐  Remote   ┌──────────────────────┐
-│ claude  (Bedrock)  │ ───────▶ │ ~/.claude/ccbridge  (files)  │  Control  │ Claude app           │
-│  permission prompt │ ◀─────── │ relay session (your Claude   │ ◀───────▶ │ "Approval - deploy   │
-│  question, reply   │ decision │ login, AskUserQuestion only) │           │  - my-project"       │
+│ claude             │ ───────▶ │ ~/.claude/ccbridger (files)  │  Control  │ Claude app           │
+│ Bedrock · Vertex · │ ◀─────── │ relay session (your Claude   │ ◀───────▶ │ "Approval - deploy   │
+│ Foundry            │ decision │ login, AskUserQuestion only) │           │  - my-project"       │
 └────────────────────┘          └──────────────────────────────┘           └──────────────────────┘
 ```
+
+## Which sessions it covers
+
+| Provider | How Claude Code is switched to it | Bridged by `--global` |
+|---|---|---|
+| AWS Bedrock | `CLAUDE_CODE_USE_BEDROCK=1` | yes |
+| Google Vertex AI | `CLAUDE_CODE_USE_VERTEX=1` | yes |
+| Microsoft Foundry | `CLAUDE_CODE_USE_FOUNDRY=1` | yes |
+| Claude subscription login | — | no: it already has Remote Control |
+
+Nothing in the bridge is provider-specific: it works through Claude Code's hooks, which behave the same
+whichever API serves the model. A per-project install bridges that project regardless of provider.
+
+Developed and tested end to end on **AWS Bedrock**. Vertex AI and Foundry use the same code path and are
+detected the same way, but have not been exercised with live sessions yet — reports are welcome.
 
 ## What you get
 
@@ -51,20 +66,21 @@ Developed and tested on macOS with Claude Code 2.1.195. Linux should work but ha
 ```bash
 git clone https://github.com/fxerkan/ccbridger.git
 cd ccbridger
-ln -s "$PWD/ccb" ~/.local/bin/ccb            # anywhere on your PATH
-ccb selftest                                 # offline check, prints "selftest OK"
+ln -s "$PWD/ccbridger" ~/.local/bin/ccbridger    # anywhere on your PATH
+ln -s "$PWD/ccbridger" ~/.local/bin/ccb          # short alias used below
+ccb selftest                                     # offline check, prints "selftest OK"
 
-ccb install --global                         # bridge every Bedrock / Vertex / Foundry session
+ccb install --global                             # bridge every Bedrock / Vertex / Foundry session
 # or only chosen projects, whatever provider they use:
 ccb install ~/code/project-a ~/code/project-b
 ```
 
 `--global` writes to `~/.claude/settings.json` and stays out of the way of sessions that run on a Claude
-login (they already have Remote Control). Per-project installs go to `.claude/settings.local.json`.
-Restart the sessions you want bridged. `ccb uninstall` takes the same arguments.
+login. Per-project installs go to `.claude/settings.local.json`. Restart the sessions you want bridged.
+`ccb uninstall` takes the same arguments.
 
 Optional — teach your normal Remote Control session the commands, so you can just say
-"what are my sessions doing?" or "approve the datalake one":
+"what are my sessions doing?" or "approve the infra one":
 
 ```bash
 mkdir -p ~/.claude/skills/ccb && cp skill/SKILL.md ~/.claude/skills/ccb/
@@ -84,15 +100,15 @@ mkdir -p ~/.claude/skills/ccb && cp skill/SKILL.md ~/.claude/skills/ccb/
 
 `<id>` is a session id prefix or any part of the project directory name.
 
-## Teams: many people, one Bedrock account
+## Teams: many people, one cloud account
 
-Bedrock access is usually shared — one AWS account, one role, sometimes one API key for a whole team.
-The bridge is not shared: everything lives under each person's own `~/.claude`, and the relay session
-runs on **that person's own Claude login**. So every developer installs `ccb` on their own machine and
-gets their own approvals in their own Claude app; nobody sees or can answer anyone else's prompts, and
-there is nothing central to run or secure.
+API access is usually shared — one AWS account, one GCP project or one Azure resource for a whole team,
+sometimes a single API key. The bridge is not shared: everything lives under each person's own `~/.claude`,
+and the relay session runs on **that person's own Claude login**. So every developer installs ccBridger on
+their own machine and gets their own approvals in their own Claude app; nobody sees or can answer anyone
+else's prompts, and there is nothing central to run or secure.
 
-Per-user settings go in `~/.claude/ccbridge/config.json`:
+Per-user settings go in `~/.claude/ccbridger/config.json`:
 
 ```json
 {
@@ -119,10 +135,11 @@ Per-user settings go in `~/.claude/ccbridge/config.json`:
   `Notification` hooks keep one background waiter per session alive; when a message arrives it exits
   with code 2, which wakes the session (`asyncRewake`).
 - **The relay.** A small helper session started in `tmux` on your Claude login, with Remote Control on
-  and only the `AskUserQuestion` tool. It turns each request into a native prompt in the Claude app.
-  The model only phrases the question; **the decision is read by a hook, not by the model**, and only
-  the exact *Approve* label counts as approval.
-- **State** is plain files under `~/.claude/ccbridge/`, mode 0700. Nothing listens on the network.
+  and only the `AskUserQuestion` tool. The provider variables of the bridged session (Bedrock, Vertex,
+  Foundry) are stripped from its environment. It turns each request into a native prompt in the Claude
+  app. The model only phrases the question; **the decision is read by a hook, not by the model**, and
+  only the exact *Approve* label counts as approval.
+- **State** is plain files under `~/.claude/ccbridger/`, mode 0700. Nothing listens on the network.
 
 ## Limits you should know about
 
@@ -134,7 +151,7 @@ Per-user settings go in `~/.claude/ccbridge/config.json`:
 - Remote messages appear in the terminal as "Stop hook feedback".
 - The relay model may shorten a question's wording on the phone; the original text is in the message
   above it, and your choice is mapped by position.
-- `ccb` reads Claude Code's session registry and drives the relay through `tmux`, so a future Claude
+- ccBridger reads Claude Code's session registry and drives the relay through `tmux`, so a future Claude
   Code release can break it. `ccb selftest` covers the queue logic, not the live integration.
 
 ## License

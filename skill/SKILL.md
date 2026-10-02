@@ -1,11 +1,11 @@
 ---
 name: ccb
-description: Watch and remotely steer the other terminal coding sessions on this machine (for example ones running on AWS Bedrock) — see their status, approve or reject permission requests, answer their questions, send them messages. Use when the user says "ccb", asks what their sessions are doing, whether something is waiting for approval, or says approve / reject / tell that session to do something.
+description: Watch and remotely steer the other terminal coding sessions on this machine (API-based ones on AWS Bedrock, Google Vertex AI or Microsoft Foundry) — see their status, approve or reject permission requests, answer their questions, send them messages. Use when the user says "ccb", asks what their sessions are doing, whether something is waiting for approval, or says approve / reject / tell that session to do something.
 ---
 
 # ccb — session bridge
 
-One tool: `ccb <command>` (run it with Bash).
+One tool: `ccb <command>` — the short name of `ccbridger` (run it with Bash).
 
 | Command | What it does |
 |---|---|

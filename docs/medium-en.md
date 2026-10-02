@@ -1,10 +1,10 @@
 # You Walked Away From Your Desk. Your Coding Agent Is Still Waiting for a "Yes".
 
-### Why Claude Code sessions on AWS Bedrock are stuck in the terminal — and how I gave them a remote control with hooks, a file queue and one Python file
+### Why Claude Code sessions on Bedrock, Vertex and Foundry are stuck in the terminal — and how I gave them a remote control with hooks, a file queue and one Python file
 
-![ccBridger — a Bedrock terminal session on one side, an approval prompt on your phone on the other](assets/hero-7.jpg)
+![ccBridger — Remote Control for API-based Claude Code sessions: Bedrock, Vertex, Foundry](assets/hero-7.jpg)
 
-> **TL;DR** — Claude Code's Remote Control needs a Claude subscription login. Sessions that run through AWS Bedrock (or Vertex, or Foundry) don't get it, so a single permission prompt can stall an hour of work while you are in a meeting. ccBridger is a small open-source bridge: hooks record what the session needs, a tiny helper session shows it in the Claude mobile app as a native prompt, and your tap goes back to the terminal. No server, no open ports, standard library only.
+> **TL;DR** — Claude Code's Remote Control needs a Claude subscription login. Sessions that run through an API provider — AWS Bedrock, Google Vertex AI, Microsoft Foundry — don't get it, so a single permission prompt can stall an hour of work while you are in a meeting. ccBridger is a small open-source bridge: hooks record what the session needs, a tiny helper session shows it in the Claude mobile app as a native prompt, and your tap goes back to the terminal. No server, no open ports, standard library only.
 >
 > 🔗 **[github.com/fxerkan/ccbridger](https://github.com/fxerkan/ccbridger)**
 
@@ -12,9 +12,9 @@
 
 ## The problem
 
-A lot of companies run Claude Code through AWS Bedrock. The reasons are sensible: billing lands on the AWS invoice, data stays inside the account, access goes through IAM. I work that way on two client projects.
+A lot of companies run Claude Code through their cloud provider instead of a Claude subscription: AWS Bedrock, Google Vertex AI or Microsoft Foundry. The reasons are sensible: billing lands on the cloud invoice, data stays inside the account, access goes through the provider's own identity system. I work that way on two client projects, both on Bedrock.
 
-What you give up is Remote Control. With a subscription login you can open the Claude app on your phone, see the session that is running on your laptop, answer its questions and keep it moving. With Bedrock that door is closed. The session lives in the terminal tab where you started it, and nowhere else.
+What you give up is Remote Control. With a subscription login you can open the Claude app on your phone, see the session that is running on your laptop, answer its questions and keep it moving. With an API provider that door is closed. The session lives in the terminal tab where you started it, and nowhere else.
 
 That sounds like a small inconvenience until you look at how agent work actually goes:
 
@@ -47,11 +47,11 @@ What I wanted was narrower:
 
 ## The idea: borrow the Remote Control you already have
 
-Remote Control doesn't work for the Bedrock session. But it works fine for a *different* session on the same machine that runs on my own Claude login. So the bridge doesn't try to remote-control the Bedrock session at all. It starts a tiny second session whose only job is to ask me a question, and lets Remote Control carry that question to my phone.
+Remote Control doesn't work for the API-based session. But it works fine for a *different* session on the same machine that runs on my own Claude login. So the bridge doesn't try to remote-control that session at all. It starts a tiny second session whose only job is to ask me a question, and lets Remote Control carry that question to my phone.
 
 Three pieces make that work.
 
-### 1. Hooks on the Bedrock session
+### 1. Hooks on the API-based session
 
 Claude Code runs hooks — shell commands — at defined points. `ccb install` adds five of them:
 
@@ -73,7 +73,7 @@ Four hooks for one waiter looks redundant. It isn't: a turn interrupted with Esc
 
 ### 2. A file queue
 
-All state is plain files under `~/.claude/ccbridge/`, one directory per session: `pending.json`, `decision.json`, `inbox`, `waiter.pid`. Writes are atomic renames; the inbox is taken with a rename so exactly one waiter gets each message. Polling is once a second. There is no daemon and nothing listens on the network.
+All state is plain files under `~/.claude/ccbridger/`, one directory per session: `pending.json`, `decision.json`, `inbox`, `waiter.pid`. Writes are atomic renames; the inbox is taken with a rename so exactly one waiter gets each message. Polling is once a second. There is no daemon and nothing listens on the network.
 
 Which sessions exist, and whether each is idle, busy or waiting, comes from Claude Code's own registry in `~/.claude/sessions/`. What a session is doing comes from its transcript file. `ccb ls` and `ccb show` are just readers for those two things.
 
@@ -88,7 +88,7 @@ claude --model haiku --tools AskUserQuestion --remote-control "Approval - Prod d
 
 A few things about that line matter:
 
-- **It runs on my Claude login**, with the Bedrock environment variables stripped, so Remote Control is available.
+- **It runs on my Claude login**, with the provider variables (`CLAUDE_CODE_USE_BEDROCK`, `…_VERTEX`, `…_FOUNDRY`) stripped, so Remote Control is available.
 - **It has exactly one tool**, `AskUserQuestion`. It cannot read files or run commands. Its whole job is to turn the request into a native question in the Claude app.
 - **The model never decides anything.** A `PostToolUse` hook on the relay reads the answer I tapped and writes the decision file itself. Only the exact *Approve* label counts as approval; anything else — *Reject*, free text, a typo — is a rejection.
 
@@ -96,7 +96,7 @@ There is one relay per bridged session and it stays open, so the conversation on
 
 ## Questions, and why answers are mapped by position
 
-When the Bedrock session calls `AskUserQuestion`, the relay asks the same question with the same options. Early on I noticed the small relay model sometimes shortened the option text. For a question like "upgrade prod now?" that is not a detail I wanted to leave to chance.
+When the bridged session calls `AskUserQuestion`, the relay asks the same question with the same options. Early on I noticed the small relay model sometimes shortened the option text. For a question like "upgrade prod now?" that is not a detail I wanted to leave to chance.
 
 So the relay hook doesn't forward the label I tapped. It finds the *position* of my choice among the options the relay showed and maps it onto the option at the same position in the original question. The wording on the phone can drift; the answer cannot. The original text is always in the message right above the prompt.
 
@@ -106,9 +106,9 @@ Approvals were the starting point, but once the relay existed the next step was 
 
 So from the phone I can write *"Is the upgrade done? Are all the filters working?"* and get the real session's answer in the same thread. If the session is busy, I'm told so, along with what it is doing right now and that my message is queued.
 
-## Teams: one Bedrock account, many people
+## Teams: one cloud account, many people
 
-Bedrock access is often shared across a team — one account, one role. The bridge is not shared, and that falls out of the design rather than being added to it:
+API access is often shared across a team — one AWS account, one GCP project, one Azure resource. The bridge is not shared, and that falls out of the design rather than being added to it:
 
 - Every developer installs ccBridger on their own machine. State lives under their own `~/.claude`.
 - The relay runs on that person's own Claude login, so prompts land only in their Claude app. Nobody can see or answer anyone else's.
@@ -120,7 +120,8 @@ For anything beyond the app, each person can set a `notify_cmd` in their config 
 
 ```bash
 git clone https://github.com/fxerkan/ccbridger.git && cd ccbridger
-ln -s "$PWD/ccb" ~/.local/bin/ccb
+ln -s "$PWD/ccbridger" ~/.local/bin/ccbridger
+ln -s "$PWD/ccbridger" ~/.local/bin/ccb     # short alias
 ccb selftest
 
 ccb install --global          # every Bedrock / Vertex / Foundry session
@@ -153,7 +154,7 @@ A few things only showed up once it met real sessions:
 - Only the last message of a turn comes back to the phone, not every step.
 - Answers to questions reach the session as text; in the terminal that shows up as a denied tool call followed by the session carrying on with your answer.
 - It depends on things Claude Code doesn't promise to keep stable: the session registry, the hook behaviour, a few strings on the terminal screen. A future release can break it. The built-in self-test covers the queue logic, not the live integration.
-- Developed and tested on macOS. Linux should work; I haven't tried it.
+- Developed and tested on macOS, with live sessions on AWS Bedrock. Vertex AI and Foundry go through the same hooks and are detected the same way, but I haven't run live sessions on them yet. Linux should work; I haven't tried it either.
 
 ## Why this matters
 
