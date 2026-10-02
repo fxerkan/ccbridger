@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/fxerkan/ccbridge/main/docs/assets/hero-7.jpg" alt="ccBridger — Remote Control for API-based Claude Code sessions on Bedrock, Vertex and Foundry" width="820">
+  <img src="https://raw.githubusercontent.com/fxerkan/ccbridger/main/docs/assets/hero-7.jpg" alt="ccBridger — Remote Control for API-based Claude Code sessions on Bedrock, Vertex and Foundry" width="820">
 </p>
 
 # ccBridg**er**
@@ -49,8 +49,8 @@ Developed and tested on macOS with Claude Code 2.1.195. Linux should work but ha
 ## Install
 
 ```bash
-git clone https://github.com/fxerkan/ccbridge.git
-cd ccbridge
+git clone https://github.com/fxerkan/ccbridger.git
+cd ccbridger
 ln -s "$PWD/ccb" ~/.local/bin/ccb            # anywhere on your PATH
 ccb selftest                                 # offline check, prints "selftest OK"
 

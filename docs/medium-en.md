@@ -2,11 +2,11 @@
 
 ### Why Claude Code sessions on AWS Bedrock are stuck in the terminal — and how I gave them a remote control with hooks, a file queue and one Python file
 
-![ccbridge — a Bedrock terminal session on one side, an approval prompt on your phone on the other](assets/hero-2.png)
+![ccBridger — a Bedrock terminal session on one side, an approval prompt on your phone on the other](assets/hero-7.jpg)
 
-> **TL;DR** — Claude Code's Remote Control needs a Claude subscription login. Sessions that run through AWS Bedrock (or Vertex, or Foundry) don't get it, so a single permission prompt can stall an hour of work while you are in a meeting. `ccbridge` is a small open-source bridge: hooks record what the session needs, a tiny helper session shows it in the Claude mobile app as a native prompt, and your tap goes back to the terminal. No server, no open ports, standard library only.
+> **TL;DR** — Claude Code's Remote Control needs a Claude subscription login. Sessions that run through AWS Bedrock (or Vertex, or Foundry) don't get it, so a single permission prompt can stall an hour of work while you are in a meeting. ccBridger is a small open-source bridge: hooks record what the session needs, a tiny helper session shows it in the Claude mobile app as a native prompt, and your tap goes back to the terminal. No server, no open ports, standard library only.
 >
-> 🔗 **[github.com/fxerkan/ccbridge](https://github.com/fxerkan/ccbridge)**
+> 🔗 **[github.com/fxerkan/ccbridger](https://github.com/fxerkan/ccbridger)**
 
 ---
 
@@ -32,7 +32,7 @@ And it isn't only permissions. Agents ask real questions too: *"The upgrade can'
 
 Picture a contractor renovating your kitchen while you are at work. They are good and fast, but they have one rule: before knocking down a wall, they ask. If they can only ask by knocking on your study door, the work stops the moment you leave the house. Give them your phone number and the same rule costs you ten seconds instead of an afternoon.
 
-ccbridge is the phone number. The rule — ask before doing something that matters — stays exactly as it was.
+ccBridger is the phone number. The rule — ask before doing something that matters — stays exactly as it was.
 
 ## Why the obvious answers don't fit
 
@@ -55,7 +55,7 @@ Three pieces make that work.
 
 Claude Code runs hooks — shell commands — at defined points. `ccb install` adds five of them:
 
-| Hook | What ccbridge does with it |
+| Hook | What ccBridger does with it |
 |---|---|
 | `PermissionRequest` | Writes the request (tool, input) to a file, then waits for a decision file. The terminal prompt stays live the whole time. |
 | `Stop`, `SessionStart`, `UserPromptSubmit`, `Notification` | Keep one background *waiter* per session alive. |
@@ -102,7 +102,7 @@ So the relay hook doesn't forward the label I tapped. It finds the *position* of
 
 ## A two-way conversation
 
-Approvals were the starting point, but once the relay existed the next step was obvious. The relay has a `UserPromptSubmit` hook: anything I type into that conversation that isn't one of ccbridge's own messages is put into the session's inbox instead of being answered by the relay model. The waiter delivers it. When the session finishes its turn, its `Stop` hook pastes the final message back into the relay.
+Approvals were the starting point, but once the relay existed the next step was obvious. The relay has a `UserPromptSubmit` hook: anything I type into that conversation that isn't one of ccBridger's own messages is put into the session's inbox instead of being answered by the relay model. The waiter delivers it. When the session finishes its turn, its `Stop` hook pastes the final message back into the relay.
 
 So from the phone I can write *"Is the upgrade done? Are all the filters working?"* and get the real session's answer in the same thread. If the session is busy, I'm told so, along with what it is doing right now and that my message is queued.
 
@@ -110,7 +110,7 @@ So from the phone I can write *"Is the upgrade done? Are all the filters working
 
 Bedrock access is often shared across a team — one account, one role. The bridge is not shared, and that falls out of the design rather than being added to it:
 
-- Every developer installs ccbridge on their own machine. State lives under their own `~/.claude`.
+- Every developer installs ccBridger on their own machine. State lives under their own `~/.claude`.
 - The relay runs on that person's own Claude login, so prompts land only in their Claude app. Nobody can see or answer anyone else's.
 - There is nothing central to run, patch or secure.
 
@@ -119,7 +119,7 @@ For anything beyond the app, each person can set a `notify_cmd` in their config 
 ## Getting started
 
 ```bash
-git clone https://github.com/fxerkan/ccbridge.git && cd ccbridge
+git clone https://github.com/fxerkan/ccbridger.git && cd ccbridger
 ln -s "$PWD/ccb" ~/.local/bin/ccb
 ccb selftest
 
@@ -164,7 +164,7 @@ The whole thing is one Python file, MIT-licensed, with no dependencies. Read it,
 ---
 
 **Links**
-- ⭐ GitHub: [github.com/fxerkan/ccbridge](https://github.com/fxerkan/ccbridge)
+- ⭐ GitHub: [github.com/fxerkan/ccbridger](https://github.com/fxerkan/ccbridger)
 - 📦 Install: `git clone` · `ln -s` · `ccb install --global`
 
 *If this was useful, a ⭐ on GitHub helps other people who are stuck at the same prompt find it.*
