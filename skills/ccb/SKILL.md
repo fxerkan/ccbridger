@@ -5,7 +5,8 @@ description: Watch and remotely steer the other terminal coding sessions on this
 
 # ccb — session bridge
 
-One tool: `ccb <command>` — the short name of `ccbridger` (run it with Bash).
+One tool, run with Bash: `ccb <command>` (the short name of `ccbridger`). If `ccb` is not on the PATH, run the
+script that ships with the plugin instead: `python3 "${CLAUDE_PLUGIN_ROOT}/scripts/ccbridger" <command>`.
 
 | Command | What it does |
 |---|---|
