@@ -50,7 +50,9 @@ detected the same way, but have not been exercised with live sessions yet — re
   what it is doing and that your message is queued.
 - **Every session announces itself.** The first prompt of a bridged session opens its conversation in the
   Claude app with what was asked; the final message of every turn is mirrored there, so you can follow
-  along and know when it is waiting for you. Turn this off with `"mirror": false`.
+  along and know when it is waiting for you. Each of these also sends a **push notification through the
+  Claude app itself** (the relay calls Claude Code's `PushNotification` tool). Turn this off with
+  `"mirror": false`.
 - **One conversation per session**, titled by topic (`Approval - Prod upgrade - my-project`), so the
   history of what was asked and what you answered stays readable.
 - **A CLI for everything else**: `ccb ls`, `ccb show`, `ccb send`, `ccb ok`, `ccb no`, `ccb answer`.
@@ -120,7 +122,7 @@ Per-user settings go in `~/.claude/ccbridger/config.json`:
   "relay_model": "haiku",
   "relay_after": 15,
   "mirror": true,
-  "notify_cmd": "curl -s -d \"$CCB_BODY\" -H \"Title: $CCB_TITLE\" https://ntfy.sh/my-private-topic"
+  "notify_cmd": "curl -s -d \"$CCB_BODY\" -H \"Title: $CCB_TITLE\" https://ntfy.example.com/my-private-topic"
 }
 ```
 
@@ -130,10 +132,9 @@ Per-user settings go in `~/.claude/ccbridger/config.json`:
 - `mirror` — announce each new session and mirror the final message of every turn to the phone.
   With `false`, the phone is only used for permission requests, questions and what you send yourself.
 - `relay_after` — seconds a request waits locally before it is sent to the phone.
-- `notify_cmd` — any shell command, run for every permission request, question and finished turn, with
-  `CCB_TITLE`, `CCB_BODY`, `CCB_PROJECT`, `CCB_SESSION` and `CCB_URL` (the conversation in the Claude app)
-  in its environment. This is what makes your phone actually buzz: use it for Slack, ntfy, Gotify, a pager —
-  one per person. A ready-made Gotify script is in `examples/notify-gotify.sh`.
+- `notify_cmd` — optional, for people without the Claude app: any shell command, run for every permission
+  request, question and finished turn, with `CCB_TITLE`, `CCB_BODY`, `CCB_PROJECT`, `CCB_SESSION` and
+  `CCB_URL` in its environment (a Slack webhook, ntfy, a pager — one per person).
   The body contains the command or file being requested, so send it only somewhere you trust.
 
 ## How it works
@@ -143,7 +144,7 @@ Per-user settings go in `~/.claude/ccbridger/config.json`:
   `Notification` hooks keep one background waiter per session alive; when a message arrives it exits
   with code 2, which wakes the session (`asyncRewake`).
 - **The relay.** A small helper session started in `tmux` on your Claude login, with Remote Control on
-  and only the `AskUserQuestion` tool. The provider variables of the bridged session (Bedrock, Vertex,
+  and only the `AskUserQuestion` and `PushNotification` tools. The provider variables of the bridged session (Bedrock, Vertex,
   Foundry) are stripped from its environment. It turns each request into a native prompt in the Claude
   app. The model only phrases the question; **the decision is read by a hook, not by the model**, and
   only the exact *Approve* label counts as approval.

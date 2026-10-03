@@ -114,7 +114,7 @@ API access is often shared across a team — one AWS account, one GCP project, o
 - The relay runs on that person's own Claude login, so prompts land only in their Claude app. Nobody can see or answer anyone else's.
 - There is nothing central to run, patch or secure.
 
-For anything beyond the app, each person can set a `notify_cmd` in their config — a shell command that runs once per request with the title and body in its environment. That covers Slack, ntfy, Gotify or a pager, per user. People without a Claude subscription can turn the relay off and answer with `ccb ok` over SSH.
+For anything beyond the app, each person can set a `notify_cmd` in their config — a shell command that runs once per request with the title and body in its environment. That covers Slack, ntfy or a pager, per user. People without a Claude subscription can turn the relay off and answer with `ccb ok` over SSH.
 
 ## Getting started
 
