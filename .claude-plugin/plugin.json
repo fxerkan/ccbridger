@@ -1,7 +1,7 @@
 {
   "name": "ccbridger",
   "displayName": "ccBridger",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Remote Control for API-based Claude Code sessions (AWS Bedrock, Google Vertex AI, Microsoft Foundry): approve permission prompts, answer questions and steer terminal sessions from the Claude mobile app.",
   "author": {
     "name": "fxerkan",
@@ -18,5 +18,6 @@
     "hooks",
     "approvals",
     "mobile"
-  ]
+  ],
+  "icon": "./docs/assets/icon.png"
 }
