@@ -130,8 +130,10 @@ Per-user settings go in `~/.claude/ccbridger/config.json`:
 - `mirror` — announce each new session and mirror the final message of every turn to the phone.
   With `false`, the phone is only used for permission requests, questions and what you send yourself.
 - `relay_after` — seconds a request waits locally before it is sent to the phone.
-- `notify_cmd` — any shell command, run once per request with `CCB_TITLE`, `CCB_BODY`, `CCB_PROJECT`
-  and `CCB_SESSION` in its environment. Use it for Slack, ntfy, Gotify, a pager — one per person.
+- `notify_cmd` — any shell command, run for every permission request, question and finished turn, with
+  `CCB_TITLE`, `CCB_BODY`, `CCB_PROJECT`, `CCB_SESSION` and `CCB_URL` (the conversation in the Claude app)
+  in its environment. This is what makes your phone actually buzz: use it for Slack, ntfy, Gotify, a pager —
+  one per person. A ready-made Gotify script is in `examples/notify-gotify.sh`.
   The body contains the command or file being requested, so send it only somewhere you trust.
 
 ## How it works
