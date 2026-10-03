@@ -48,6 +48,9 @@ detected the same way, but have not been exercised with live sessions yet — re
 - **A two-way conversation.** Type anything into that conversation and it is forwarded to the terminal
   session; the session's reply comes back into the same conversation. If the session is busy you are told
   what it is doing and that your message is queued.
+- **Every session announces itself.** The first prompt of a bridged session opens its conversation in the
+  Claude app with what was asked; the final message of every turn is mirrored there, so you can follow
+  along and know when it is waiting for you. Turn this off with `"mirror": false`.
 - **One conversation per session**, titled by topic (`Approval - Prod upgrade - my-project`), so the
   history of what was asked and what you answered stays readable.
 - **A CLI for everything else**: `ccb ls`, `ccb show`, `ccb send`, `ccb ok`, `ccb no`, `ccb answer`.
@@ -116,6 +119,7 @@ Per-user settings go in `~/.claude/ccbridger/config.json`:
   "relay": true,
   "relay_model": "haiku",
   "relay_after": 15,
+  "mirror": true,
   "notify_cmd": "curl -s -d \"$CCB_BODY\" -H \"Title: $CCB_TITLE\" https://ntfy.sh/my-private-topic"
 }
 ```
@@ -123,6 +127,8 @@ Per-user settings go in `~/.claude/ccbridger/config.json`:
 - `lang` — language of what you read on the phone: `en` or `tr`.
 - `relay` — set to `false` if you have no Claude subscription; requests then only go to `notify_cmd`
   and you answer with `ccb ok` / `ccb no` / `ccb answer` (for example over SSH).
+- `mirror` — announce each new session and mirror the final message of every turn to the phone.
+  With `false`, the phone is only used for permission requests, questions and what you send yourself.
 - `relay_after` — seconds a request waits locally before it is sent to the phone.
 - `notify_cmd` — any shell command, run once per request with `CCB_TITLE`, `CCB_BODY`, `CCB_PROJECT`
   and `CCB_SESSION` in its environment. Use it for Slack, ntfy, Gotify, a pager — one per person.

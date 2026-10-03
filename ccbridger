@@ -16,7 +16,7 @@ No server, no open ports: Claude Code hooks plus a file queue under ~/.claude/cc
   ccb selftest                   offline self-check
 <id> = session id prefix, or part of the project directory name.
 Config: ~/.claude/ccbridger/config.json  {"lang": "en|tr", "relay": true, "relay_model": "haiku",
-        "relay_after": 15, "notify_cmd": "<shell command>"}
+        "relay_after": 15, "mirror": true, "notify_cmd": "<shell command>"}
 """
 import glob, json, os, re, signal, subprocess, sys, time
 
@@ -38,6 +38,9 @@ TEXT = {
     "en": {
         "language": "English", "title": "Approval", "allow": "Approve", "deny": "Reject", "delivered": "Delivered",
         "perm": "🔐 Permission request", "question": "❓ Question", "reply": "📨 Reply", "link": "📨 Connected",
+        "started": "📨 Session started", "first": "First prompt", "notice": "📨 Notice",
+        "working": "The session is working on it. Its replies, questions and permission requests show up here; "
+                   "anything you write here is forwarded to it.",
         "link_body": "Whatever you write here is forwarded to the %s session and its reply shows up here. "
                      "Permission requests and questions land here too.",
         "empty": "(empty reply)", "rejected": "The user rejected this remotely.",
@@ -51,6 +54,9 @@ TEXT = {
     "tr": {
         "language": "Turkish", "title": "Onay", "allow": "Onayla", "deny": "Reddet", "delivered": "İletildi",
         "perm": "🔐 İzin isteği", "question": "❓ Soru", "reply": "📨 Yanıt", "link": "📨 Bağlantı",
+        "started": "📨 Oturum başladı", "first": "İlk istek", "notice": "📨 Bildirim",
+        "working": "Oturum bu istek üzerinde çalışıyor. Yanıtları, soruları ve izin istekleri buraya düşer; "
+                   "buraya yazdıkların oturuma iletilir.",
         "link_body": "Bu konuşmaya yazdıkların %s oturumuna iletilir, yanıtı burada görünür. "
                      "İzin istekleri ve sorular da buraya düşer.",
         "empty": "(boş yanıt)", "rejected": "Kullanıcı uzaktan reddetti.",
@@ -363,11 +369,21 @@ def hook(*flags):
                 tmux("send-keys", "-t", "ccb-" + sid[:8], "Escape")
         return
 
-    if ev.get("hook_event_name") == "Stop" and os.path.exists(d + "/forward"):
-        rm(d + "/forward")  # reply to a message forwarded from the phone: show it in the relay
+    name, proj = ev.get("hook_event_name"), os.path.basename(ev.get("cwd", ""))
+    mirror = CFG.get("relay", True) and CFG.get("mirror", True)
+    if name == "UserPromptSubmit" and mirror and not os.path.exists(d + "/announced"):
+        write(d + "/announced", "1")  # first prompt of a session: tell the phone what it is working on
+        topic = " ".join((ev.get("prompt") or "").split())
+        relay_post(sid, "%s · %s\n\n**%s:** %s\n\n%s" % (T["started"], proj, T["first"], short(topic, 900),
+                                                          T["working"]),
+                   "%s - %s - %s" % (T["title"], short(topic, 48), proj))
+    elif name == "Stop" and (mirror or os.path.exists(d + "/forward")):
+        rm(d + "/forward")  # end of a turn: show the final message in the relay conversation
         text = ev.get("last_assistant_message") or last_text(ev.get("transcript_path"))
-        relay_post(sid, "%s · %s\n\n%s" % (T["reply"], os.path.basename(ev.get("cwd", "")),
-                                           short(text or T["empty"], 6000)), create=False)
+        relay_post(sid, "%s · %s\n\n%s" % (T["reply"], proj, short(text or T["empty"], 6000)), create=mirror)
+    elif name == "Notification" and mirror and ev.get("message") and \
+            ev.get("notification_type") not in ("idle_prompt", "permission_prompt"):
+        relay_post(sid, "%s · %s\n\n%s" % (T["notice"], proj, short(ev["message"], 900)), create=False)
 
     # every other event (asyncRewake): one waiter per session; exit 2 when a message arrives
     pidf = d + "/waiter.pid"
@@ -545,6 +561,8 @@ def selftest():
     import tempfile
     home = tempfile.mkdtemp()
     os.makedirs(home + "/sessions")
+    os.makedirs(home + "/ccbridger")
+    json.dump({"relay": False}, open(home + "/ccbridger/config.json", "w"))  # never start a real relay
     json.dump({"pid": os.getpid(), "sessionId": "test-sid", "cwd": "/x/demo", "status": "idle"},
               open(home + "/sessions/1.json", "w"))
     env = {k: v for k, v in os.environ.items() if k not in THIRD_PARTY}
