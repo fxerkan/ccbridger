@@ -68,28 +68,39 @@ Developed and tested on macOS with Claude Code 2.1.195. Linux should work but ha
 
 ## Install
 
+### As a Claude Code plugin (recommended)
+
+```bash
+claude plugin marketplace add fxerkan/ccbridger
+claude plugin install ccbridger@fxerkan
+```
+
+That is the whole setup. The plugin brings its hooks and the `ccb` skill, so in any session you can just say
+"what are my sessions doing?" or "approve the infra one". Its hooks only act in sessions that run on Bedrock,
+Vertex or Foundry; sessions on a Claude login are left alone because they already have Remote Control.
+Restart the sessions you want bridged. Update later with `claude plugin update ccbridger@fxerkan`.
+
+Set `CCB_ALL=1` in a session's environment to bridge it whatever provider it uses. To type `ccb` commands
+in your own shell as well, link the script from a clone as shown below (skip the `ccb install` line).
+
+### Manually, from a clone
+
 ```bash
 git clone https://github.com/fxerkan/ccbridger.git
 cd ccbridger
-ln -s "$PWD/ccbridger" ~/.local/bin/ccbridger    # anywhere on your PATH
-ln -s "$PWD/ccbridger" ~/.local/bin/ccb          # short alias used below
-ccb selftest                                     # offline check, prints "selftest OK"
+ln -s "$PWD/scripts/ccbridger" ~/.local/bin/ccbridger   # anywhere on your PATH
+ln -s "$PWD/scripts/ccbridger" ~/.local/bin/ccb         # short alias used below
+ccb selftest                                        # offline check, prints "selftest OK"
 
-ccb install --global                             # bridge every Bedrock / Vertex / Foundry session
+ccb install --global                                # bridge every Bedrock / Vertex / Foundry session
 # or only chosen projects, whatever provider they use:
 ccb install ~/code/project-a ~/code/project-b
+mkdir -p ~/.claude/skills/ccb && cp skills/ccb/SKILL.md ~/.claude/skills/ccb/   # optional: the skill
 ```
 
-`--global` writes to `~/.claude/settings.json` and stays out of the way of sessions that run on a Claude
-login. Per-project installs go to `.claude/settings.local.json`. Restart the sessions you want bridged.
-`ccb uninstall` takes the same arguments.
-
-Optional — teach your normal Remote Control session the commands, so you can just say
-"what are my sessions doing?" or "approve the infra one":
-
-```bash
-mkdir -p ~/.claude/skills/ccb && cp skill/SKILL.md ~/.claude/skills/ccb/
-```
+`--global` writes to `~/.claude/settings.json`; per-project installs go to `.claude/settings.local.json`.
+`ccb uninstall` takes the same arguments. Use one method, not both: with the plugin enabled and the hooks
+also installed by hand, every hook runs twice.
 
 ## Use
 
