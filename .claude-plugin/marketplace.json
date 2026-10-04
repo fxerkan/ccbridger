@@ -2,13 +2,17 @@
   "name": "fxerkan",
   "description": "Tools by fxerkan for Claude Code",
   "owner": {
-    "name": "fxerkan",
+    "name": "FXerkan",
     "url": "https://github.com/fxerkan"
   },
   "plugins": [
     {
       "name": "ccbridger",
       "source": "./",
+      "author": {
+        "name": "FXerkan",
+        "url": "https://github.com/fxerkan"
+      },
       "description": "Remote Control for API-based Claude Code sessions (AWS Bedrock, Google Vertex AI, Microsoft Foundry): approve permission prompts, answer questions and steer terminal sessions from the Claude mobile app."
     }
   ]
