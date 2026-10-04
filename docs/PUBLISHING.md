@@ -30,7 +30,13 @@ Not: `marketplace.json`'daki **`owner.name`** plugin yazarı DEĞİLDİR — o m
 claude plugin validate ./            # "✔ Validation passed" (uyarısız)
 ```
 
-Yerel CLI (v2.1.195) `icon`/`documentationUrl`/`supportUrl` manifest alanlarını "Unknown field" diye uyarıyordu. Bunlar kaldırıldı; **ikon artık konvansiyon yoluyla** `.claude-plugin/icon.png` (512×512 PNG) ile veriliyor — portal bu dosyayı otomatik bulur. Doküman/destek URL'leri portalın **Listing details** adımında girilir (manifest'e gerek yok). Sonuç: `claude plugin validate ./` tertemiz geçer.
+Yerel CLI (v2.1.195) şu alanları "Unknown field … ignored at load time" diye uyarır: `icon`, `documentationUrl`, `supportUrl`, `privacyPolicyUrl`, `termsOfServiceUrl`. **Bu uyarılar beklenir ve zararsızdır** — bunlar yalnızca **Directory listesi** için okunan alanlardır; CLI yüklemede kullanmaz ama **portal Listing details adımı plugin.json'dan okur** (portal "Not set. Add `privacyPolicyUrl` to plugin.json" gibi uyarır). Bu yüzden hepsi manifest'te tutulur:
+
+- `icon` → `./docs/assets/icon.png` (ayrıca `.claude-plugin/icon.png` konvansiyon kopyası da var)
+- `documentationUrl` → README, `supportUrl` → Issues
+- `privacyPolicyUrl` → `PRIVACY.md`, `termsOfServiceUrl` → `TERMS.md` (ikisi de repo kökünde oluşturuldu: yerel araç, veri toplamıyor; MIT as-is)
+
+`claude plugin validate ./` bu alanlar için uyarı verir ama **passed** der — submission için doğru olan budur.
 
 ### Canlı listede ne zaman değişir?
 
