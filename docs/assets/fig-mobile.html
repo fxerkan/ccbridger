@@ -1,0 +1,106 @@
+<!doctype html><!-- render 1120x792 --><html lang="en"><head><meta charset="utf-8"><title>ccBridger on the phone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Schibsted+Grotesk:wght@400;500;600;700&display=block" rel="stylesheet">
+<style>
+/* What a pending approval looks like in the Claude mobile app via ccBridger's relay.
+   Left: a PermissionRequest as a native prompt. Right: a two-way conversation +
+   an AskUserQuestion. English, Claude-mobile styling, clay palette frame. */
+html,body{margin:0}*{box-sizing:border-box}
+.c{width:1120px;height:792px;position:relative;overflow:hidden;background:#0e4442;
+  font-family:"Schibsted Grotesk",sans-serif;color:#eef3ef}
+.c::before{content:"";position:absolute;inset:0;background:url(hero-7-art.jpg) center/cover;opacity:.12}
+.c::after{content:"";position:absolute;inset:0;background:radial-gradient(900px 520px at 50% -10%,rgba(43,128,123,.4),transparent 70%)}
+.in{position:absolute;inset:0;padding:30px 40px}
+h1{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:28px;letter-spacing:-.02em;margin:0;text-align:center}
+h1 .cc{background:#ee6c4d;color:#0d3a39;border-radius:7px;padding:0 7px 2px;margin-right:2px}
+.sub{margin:6px 0 0;font-size:14.5px;color:#b9d8cf;font-weight:500;text-align:center}
+.row{display:flex;gap:56px;justify-content:center;margin-top:24px}
+.wrap{text-align:center}
+.cap{margin:14px auto 0;font-size:13.5px;color:#cfe6dd;font-weight:600;max-width:330px;line-height:1.4}
+.cap b{color:#ffb199}
+
+/* device */
+.ph{width:340px;height:632px;border:12px solid #0b2726;border-radius:46px;background:#faf7f0;
+  box-shadow:0 26px 60px rgba(4,26,24,.6);overflow:hidden;position:relative;text-align:left}
+.notch{position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:26px;background:#0b2726;border-radius:0 0 16px 16px;z-index:3}
+.stat{display:flex;justify-content:space-between;align-items:center;padding:9px 20px 4px;font-size:12px;font-weight:700;color:#2a2a28}
+.stat .r{display:flex;gap:5px;align-items:center;font-size:11px}
+.hdr{padding:6px 16px 11px;border-bottom:1px solid #ece3d2;display:flex;align-items:center;gap:10px}
+.av{width:30px;height:30px;border-radius:9px;background:#ee6c4d;color:#0d3a39;display:grid;place-items:center;font-weight:800;font-size:13px;flex:0 0 auto}
+.htxt{line-height:1.2}
+.htxt .t1{font-size:13.5px;font-weight:700;color:#201f1d}
+.htxt .t2{font-size:11px;color:#c0603f;font-weight:700;display:flex;align-items:center;gap:4px}
+.dot{width:7px;height:7px;border-radius:50%;background:#2fae6a;display:inline-block}
+.conv{padding:14px 14px 0;display:flex;flex-direction:column;gap:11px}
+.sys{align-self:center;font-size:10.5px;color:#8a8577;background:#efe7d6;border-radius:20px;padding:4px 11px;font-weight:600}
+.bub{max-width:84%;font-size:12.5px;line-height:1.42;padding:10px 12px;border-radius:15px}
+.bub.them{background:#efe7d6;color:#2a2822;border-bottom-left-radius:5px}
+.bub.me{align-self:flex-end;background:#135451;color:#f4efe3;border-bottom-right-radius:5px}
+.bub code{font-family:ui-monospace,monospace;font-size:11px;background:#201f1d;color:#ffcbb9;border-radius:7px;padding:7px 8px;display:block;margin-top:6px}
+.mono{font-family:ui-monospace,monospace}
+/* permission / question card */
+.card{background:#fff;border:1px solid #e7dcc6;border-radius:16px;padding:13px;margin:2px 2px 0;box-shadow:0 8px 20px rgba(120,90,50,.12)}
+.ctag{font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#c0603f}
+.cq{font-size:13.5px;font-weight:700;color:#201f1d;margin-top:5px;line-height:1.35}
+.opt{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:600;padding:11px 12px;border-radius:12px;margin-top:9px;border:1.5px solid #e2d6bf;color:#201f1d}
+.opt .k{width:19px;height:19px;border-radius:6px;background:#efe7d6;display:grid;place-items:center;font-size:10px;font-weight:800;color:#6b6456}
+.opt.go{background:#135451;border-color:#135451;color:#f4efe3}
+.opt.go .k{background:#ee6c4d;color:#0d3a39}
+.opt.no{color:#9c8f79}
+.bar{position:absolute;bottom:0;left:0;right:0;padding:11px 14px 16px;background:#faf7f0;border-top:1px solid #ece3d2;display:flex;align-items:center;gap:10px}
+.inp{flex:1;background:#efe7d6;border-radius:22px;padding:11px 15px;font-size:12.5px;color:#8a8577}
+.send{width:38px;height:38px;border-radius:50%;background:#ee6c4d;color:#0d3a39;display:grid;place-items:center;font-size:17px;font-weight:800;flex:0 0 auto}
+</style></head><body>
+<div class="c"><div class="in">
+  <h1><span class="cc">cc</span>Bridger in the Claude app — a prompt that would have stalled, answered from your pocket</h1>
+  <p class="sub">The same terminal session · a native Remote Control thread · your tap goes back to the laptop</p>
+
+  <div class="row">
+    <!-- PHONE A: permission approval -->
+    <div class="wrap">
+      <div class="ph"><div class="notch"></div>
+        <div class="stat"><span>9:41</span><span class="r">Claude · RC &nbsp;●&nbsp;5G&nbsp;▮</span></div>
+        <div class="hdr"><div class="av">&gt;_</div><div class="htxt">
+          <div class="t1">Approval — Prod deploy — infra</div>
+          <div class="t2"><span class="dot"></span>Remote Control · Bedrock session</div></div></div>
+        <div class="conv">
+          <div class="sys">waiting 15s with no answer at the keyboard</div>
+          <div class="bub them"><b>infra</b> wants to run a command:<code>aws rds modify-db-instance \
+  --db-instance-identifier prod \
+  --apply-immediately</code></div>
+          <div class="card">
+            <div class="ctag">Permission request</div>
+            <div class="cq">Allow this command for this session?</div>
+            <div class="opt go"><span class="k">1</span>Approve</div>
+            <div class="opt no"><span class="k">2</span>Reject</div>
+          </div>
+        </div>
+        <div class="bar"><div class="inp">Reply to this session…</div><div class="send">↑</div></div>
+      </div>
+      <p class="cap">A blocked <b>PermissionRequest</b> arrives as a native prompt. Only the exact <b>Approve</b> label counts — anything else is a reject.</p>
+    </div>
+
+    <!-- PHONE B: two-way conversation + AskUserQuestion -->
+    <div class="wrap">
+      <div class="ph"><div class="notch"></div>
+        <div class="stat"><span>9:43</span><span class="r">Claude · RC &nbsp;●&nbsp;5G&nbsp;▮</span></div>
+        <div class="hdr"><div class="av">&gt;_</div><div class="htxt">
+          <div class="t1">Upgrade — staging→prod — infra</div>
+          <div class="t2"><span class="dot"></span>Remote Control · Vertex session</div></div></div>
+        <div class="conv">
+          <div class="bub me">Is the migration done? Are all the filters working?</div>
+          <div class="bub them">Migration finished — 42/42 tables. 3 filters failed a smoke test; I'm retrying them now. I'll ask before touching prod.</div>
+          <div class="card">
+            <div class="ctag">The agent is asking you</div>
+            <div class="cq">The upgrade can't be rolled back. How should I proceed?</div>
+            <div class="opt go"><span class="k">1</span>Test workspace first</div>
+            <div class="opt"><span class="k">2</span>Straight to prod</div>
+          </div>
+        </div>
+        <div class="bar"><div class="inp">run the tests again and summarise…</div><div class="send">↑</div></div>
+      </div>
+      <p class="cap">Type back and the <b>waiter</b> delivers it to the session; <b>AskUserQuestion</b> answers are mapped <b>by position</b>, never by wording.</p>
+    </div>
+  </div>
+</div></div>
+</body></html>

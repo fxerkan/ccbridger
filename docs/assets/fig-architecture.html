@@ -1,0 +1,104 @@
+<!doctype html><!-- render 1120x748 --><html lang="en"><head><meta charset="utf-8"><title>ccBridger architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Schibsted+Grotesk:wght@400;500;600;700&display=block" rel="stylesheet">
+<style>
+/* Technical architecture — how a permission request crosses from an API-based
+   Claude Code session to the Claude mobile app and back. Clay palette (hero-7). */
+html,body{margin:0}*{box-sizing:border-box}
+.c{width:1120px;height:748px;position:relative;overflow:hidden;
+  background:#0e4442;font-family:"Schibsted Grotesk",sans-serif;color:#eef3ef}
+.c::before{content:"";position:absolute;inset:0;background:url(hero-7-art.jpg) center/cover;opacity:.10}
+.c::after{content:"";position:absolute;inset:0;background:radial-gradient(900px 520px at 24% 8%,rgba(43,128,123,.45),transparent 70%)}
+.in{position:absolute;inset:0;padding:30px 34px}
+h1{font-family:"Bricolage Grotesque",sans-serif;font-weight:800;font-size:30px;letter-spacing:-.02em;margin:0}
+h1 .cc{background:#ee6c4d;color:#0d3a39;border-radius:7px;padding:0 7px 2px;margin-right:2px}
+.sub{margin:6px 0 0;font-size:15px;color:#b9d8cf;font-weight:500}
+.lanes{display:flex;gap:20px;margin-top:22px;align-items:stretch}
+.lane{border-radius:22px;padding:16px 16px 18px;position:relative}
+.laptop{flex:1.62;background:rgba(10,52,50,.72);border:2px solid #1f6b66}
+.phone-lane{flex:1;background:rgba(238,108,77,.10);border:2px solid #ee6c4d}
+.ltag{position:absolute;top:-12px;left:18px;font-size:12px;font-weight:700;letter-spacing:.04em;
+  text-transform:uppercase;padding:3px 11px;border-radius:20px}
+.laptop .ltag{background:#1f6b66;color:#eafaf6}
+.phone-lane .ltag{background:#ee6c4d;color:#0d3a39}
+.box{background:#0d3a39;border:1.5px solid #2a807b;border-radius:14px;padding:11px 13px;box-shadow:0 10px 24px rgba(4,26,24,.5)}
+.box.accent{border-color:#ee6c4d}
+.box .bt{font-size:14.5px;font-weight:700;color:#f6ead7;display:flex;align-items:center;gap:8px}
+.box .bd{font-size:12.5px;color:#a9cabf;margin-top:4px;line-height:1.45}
+.chips{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.chip{font-size:11px;font-weight:600;background:#135451;border:1px solid #2a807b;color:#cfe6dd;border-radius:14px;padding:3px 9px}
+.chip.cor{background:rgba(238,108,77,.16);border-color:#ee6c4d;color:#ffcbb9}
+.mono{font-family:"Bricolage Grotesque",ui-monospace,monospace}
+.files{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:8px}
+.file{font-size:11px;font-family:ui-monospace,monospace;background:#0b2f2e;border:1px solid #1f6b66;color:#9fe0cf;border-radius:7px;padding:4px 7px}
+.ic{width:26px;height:26px;border-radius:8px;background:#ee6c4d;color:#0d3a39;display:grid;place-items:center;font-weight:800;font-size:13px;flex:0 0 auto}
+.flow{display:flex;flex-direction:column;gap:11px;margin-top:14px}
+.arr{text-align:center;color:#ee6c4d;font-size:15px;font-weight:800;margin:-3px 0;line-height:1}
+.arr small{color:#8fb7ab;font-weight:600;font-size:11px;font-family:"Schibsted Grotesk",sans-serif}
+/* phone */
+.pbody{display:flex;flex-direction:column;height:100%;justify-content:center;gap:12px;padding:4px 6px}
+.phone{width:206px;margin:0 auto;border:9px solid #0d3a39;border-radius:30px;background:#12524f;
+  box-shadow:0 18px 44px rgba(4,26,24,.6);overflow:hidden}
+.pbar{background:#0d3a39;color:#cfe6dd;font-size:10.5px;text-align:center;padding:7px 0 8px;font-weight:600;border-bottom:1px solid #1f6b66}
+.pbar b{color:#ffb199}
+.pin{padding:10px 10px 12px}
+.pmsg{background:#0d3a39;border-radius:12px;padding:9px 10px;font-size:11px;line-height:1.4;color:#d7e8e1}
+.pmsg code{display:block;margin-top:5px;font-family:ui-monospace,monospace;font-size:10px;color:#ffb199;background:#0b2f2e;border-radius:6px;padding:5px 6px}
+.pcard{background:#f6ead7;color:#0d3a39;border-radius:12px;padding:10px;margin-top:9px}
+.pq{font-size:11px;font-weight:700;line-height:1.35}
+.popt{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:600;padding:7px 9px;border-radius:9px;margin-top:7px;border:1.5px solid #c9b79a;color:#0d3a39}
+.popt .k{width:16px;height:16px;border-radius:5px;background:#e3d4bb;display:grid;place-items:center;font-size:9px;font-weight:800}
+.popt.on{background:#135451;border-color:#135451;color:#f6ead7}
+.popt.on .k{background:#ee6c4d;color:#0d3a39}
+.ret{position:absolute;left:34px;width:672px;bottom:20px;text-align:left;font-size:12px;color:#b9d8cf;line-height:1.5}
+.ret b{color:#ee6c4d}
+.note{position:absolute;right:38px;bottom:22px;font-size:12px;color:#ffb199;text-align:right;font-weight:600;width:380px}
+</style></head><body>
+<div class="c"><div class="in">
+  <h1><span class="cc">cc</span>Bridger — how a request crosses the bridge</h1>
+  <p class="sub">No server · no open ports · no daemon · plain files · Python standard library only</p>
+
+  <div class="lanes">
+    <div class="lane laptop"><span class="ltag">On your laptop · one Python file</span>
+      <div class="flow">
+        <div class="box accent"><div class="bt"><span class="ic">&gt;_</span>API-based Claude Code session</div>
+          <div class="bd">Runs on your cloud provider — no Claude login, so Remote Control is off. A tool needs approval and the terminal prompt blocks.</div>
+          <div class="chips"><span class="chip cor">AWS Bedrock</span><span class="chip cor">Google Vertex</span><span class="chip cor">MS Foundry</span></div>
+        </div>
+        <div class="arr">▼ <small>PermissionRequest / AskUserQuestion fires a hook</small></div>
+        <div class="box"><div class="bt"><span class="ic">H</span>5 hooks</div>
+          <div class="bd">Record the request, then keep one background <i>waiter</i> alive so an idle session can be woken.</div>
+          <div class="chips"><span class="chip">PermissionRequest</span><span class="chip">Stop</span><span class="chip">SessionStart</span><span class="chip">UserPromptSubmit</span><span class="chip">Notification</span></div>
+        </div>
+        <div class="arr">▼ <small>atomic writes · 1&nbsp;s polling</small></div>
+        <div class="box"><div class="bt"><span class="ic">▤</span>File queue&nbsp; <span class="mono" style="font-size:11px;color:#9fe0cf">~/.claude/ccbridger/&lt;session&gt;/</span></div>
+          <div class="files"><span class="file">pending.json</span><span class="file">decision.json</span><span class="file">inbox</span><span class="file">waiter.pid</span></div>
+        </div>
+        <div class="arr">▼ <small>no local answer after 15&nbsp;s → start relay in tmux</small></div>
+        <div class="box accent"><div class="bt"><span class="ic">◎</span>Relay session · <span style="color:#ffb199">your Claude login</span></div>
+          <div class="bd"><span class="mono" style="font-size:11px">claude --remote-control --model haiku --tools AskUserQuestion</span> — provider vars stripped, one tool only, model decides nothing.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lane phone-lane"><span class="ltag">On your phone · an app you already have</span>
+      <div class="pbody">
+        <div class="phone">
+          <div class="pbar">Claude · <b>Remote Control</b><br>Approval — Prod deploy — infra</div>
+          <div class="pin">
+            <div class="pmsg">infra wants to run:<code>terraform apply -auto-approve</code></div>
+            <div class="pcard">
+              <div class="pq">Allow this command?</div>
+              <div class="popt on"><span class="k">1</span>Approve</div>
+              <div class="popt"><span class="k">2</span>Reject</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ret">Your tap is mapped back <b>by position</b> → <span class="mono" style="font-size:11.5px">decision.json</span> → the terminal prompt unblocks.<br>Reply in the thread and the background waiter delivers it to the session.</div>
+  <div class="note">One relay per session · prompts land only in<br>your own Claude app · github.com/fxerkan/ccbridger</div>
+</div></div>
+</body></html>

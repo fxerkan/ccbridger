@@ -1,10 +1,54 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><title>ccBridger icon</title>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&display=block" rel="stylesheet">
+<!doctype html><!-- render 512x512 --><html lang="en"><head><meta charset="utf-8"><title>ccBridger icon</title>
 <style>
-/* Plugin icon: the "cc" block of the wordmark Same palette as the hero. */
+/* Plugin icon 512x512. Meaning: a terminal Claude Code session (left) bridged to a
+   phone approval (right) by a clay arc — "Remote Control for API-based sessions".
+   Palette matches hero-7 / og: teal #135451 · coral #ee6c4d · cream #f6ead7. */
 html,body{margin:0;background:transparent}
-.i{width:512px;height:512px;border-radius:112px;background:#135451;position:relative;overflow:hidden}
-.cc{position:absolute;left:76px;top:136px;width:360px;height:240px;border-radius:56px;background:#ee6c4d;color:#0d3a39;
-  font:800 224px/214px "Bricolage Grotesque",sans-serif;letter-spacing:-.05em;text-align:center}
-</style></head><body><div class="i">
-<div class="cc">cc</div></div></body></html>
+svg{display:block}
+</style></head><body>
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <radialGradient id="bg" cx="38%" cy="30%" r="90%">
+    <stop offset="0%" stop-color="#1b6b67"/><stop offset="60%" stop-color="#135451"/><stop offset="100%" stop-color="#0d3a39"/>
+  </radialGradient>
+  <filter id="clay" x="-30%" y="-30%" width="160%" height="160%">
+    <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#06211f" flood-opacity="0.45"/>
+  </filter>
+  <filter id="soft" x="-40%" y="-40%" width="180%" height="180%">
+    <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#5a1f12" flood-opacity="0.35"/>
+  </filter>
+</defs>
+
+<!-- base tile -->
+<rect x="0" y="0" width="512" height="512" rx="112" fill="url(#bg)"/>
+<rect x="8" y="8" width="496" height="496" rx="106" fill="none" stroke="#2a807b" stroke-opacity="0.35" stroke-width="3"/>
+
+<!-- bridge arc (clay cable) linking the two endpoints -->
+<path d="M126 300 C 196 150, 316 150, 386 300" fill="none" stroke="#ee6c4d" stroke-width="26" stroke-linecap="round" filter="url(#soft)"/>
+<!-- suspension drops -->
+<g stroke="#ee6c4d" stroke-width="12" stroke-linecap="round" opacity="0.9">
+  <line x1="186" y1="208" x2="186" y2="300"/>
+  <line x1="256" y1="186" x2="256" y2="300"/>
+  <line x1="326" y1="208" x2="326" y2="300"/>
+</g>
+
+<!-- LEFT endpoint: terminal session tile -->
+<g filter="url(#clay)">
+  <rect x="86" y="300" width="112" height="112" rx="30" fill="#0d3a39"/>
+  <rect x="86" y="300" width="112" height="112" rx="30" fill="none" stroke="#ee6c4d" stroke-opacity="0.6" stroke-width="4"/>
+</g>
+<path d="M112 338 L132 356 L112 374" fill="none" stroke="#f6ead7" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+<line x1="140" y1="376" x2="172" y2="376" stroke="#f6ead7" stroke-width="12" stroke-linecap="round"/>
+
+<!-- RIGHT endpoint: phone with approval check -->
+<g filter="url(#clay)">
+  <rect x="314" y="300" width="112" height="112" rx="30" fill="#ee6c4d"/>
+</g>
+<rect x="344" y="322" width="52" height="86" rx="14" fill="#0d3a39"/>
+<path d="M356 366 L369 379 L386 350" fill="none" stroke="#f6ead7" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+
+<!-- travelling pulse on the bridge (the request crossing over) -->
+<circle cx="256" cy="168" r="17" fill="#f6ead7" filter="url(#soft)"/>
+<circle cx="256" cy="168" r="7" fill="#ee6c4d"/>
+</svg>
+</body></html>

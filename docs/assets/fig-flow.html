@@ -1,0 +1,74 @@
+<!doctype html><!-- render 1120x520 --><html lang="en"><head><meta charset="utf-8"><title>Before / after ccBridger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Schibsted+Grotesk:wght@400;500;600;700&display=block" rel="stylesheet">
+<style>
+/* The one prompt, two outcomes: without the bridge it waits at an empty desk;
+   with it, the answer costs ten seconds from the phone. Clay palette (hero-7). */
+html,body{margin:0}*{box-sizing:border-box}
+.c{width:1120px;height:520px;position:relative;overflow:hidden;background:#0e4442;
+  font-family:"Schibsted Grotesk",sans-serif;color:#eef3ef}
+.c::before{content:"";position:absolute;inset:0;background:url(hero-7-art.jpg) center/cover;opacity:.10}
+.in{position:absolute;inset:0;padding:30px 34px;display:flex;gap:26px}
+.col{flex:1;border-radius:22px;padding:20px 22px;position:relative;display:flex;flex-direction:column}
+.before{background:rgba(10,52,50,.66);border:2px solid #4a4038}
+.after{background:rgba(238,108,77,.10);border:2px solid #ee6c4d}
+.tag{display:inline-flex;align-items:center;gap:8px;font-family:"Bricolage Grotesque",sans-serif;font-weight:800;
+  font-size:19px;letter-spacing:-.01em}
+.before .tag{color:#d7cdbe}.after .tag{color:#ffb199}
+.tag .d{width:11px;height:11px;border-radius:50%}
+.before .d{background:#8a7f70}.after .d{background:#ee6c4d}
+.lede{font-size:14px;color:#b9d8cf;margin:7px 0 16px;line-height:1.45}
+.term{background:#0b2726;border:1px solid #244c49;border-radius:12px;font-family:ui-monospace,monospace;
+  font-size:12.5px;line-height:1.6;color:#bcd3cb;overflow:hidden;box-shadow:0 12px 28px rgba(4,26,24,.5)}
+.term .bar{display:flex;gap:6px;align-items:center;padding:8px 11px;border-bottom:1px solid #244c49;color:#6f9088;font-size:11px}
+.term .bar s{width:9px;height:9px;border-radius:50%;background:#2b544f;display:inline-block}
+.term .bd{padding:11px 13px}
+.term .p{color:#ffb199}.term .q{color:#f6ead7;font-weight:600}.term .o{color:#9fe0cf}.term .dim{color:#5f817a}
+.term .cur{background:#ee6c4d;color:#0b2726;padding:0 2px}
+.wait{margin-top:14px;display:flex;align-items:center;gap:10px;font-size:13px;color:#d7cdbe;font-weight:600}
+.wait .pill{background:#2a2620;border:1px solid #4a4038;color:#cbb;border-radius:16px;padding:4px 11px;color:#e0b48f}
+.after .wait{color:#eef3ef}
+.after .pill{background:#135451;border-color:#2a807b;color:#9fe0cf}
+/* mini phone for after */
+.mini{margin-top:14px;align-self:flex-start;width:100%;display:flex;gap:14px;align-items:center}
+.mph{width:150px;border:7px solid #0b2726;border-radius:26px;background:#faf7f0;overflow:hidden;flex:0 0 auto;box-shadow:0 14px 30px rgba(4,26,24,.5)}
+.mph .mh{background:#faf7f0;padding:9px 10px 7px;border-bottom:1px solid #ece3d2;font-size:10px;font-weight:700;color:#201f1d}
+.mph .mh small{display:block;color:#c0603f;font-weight:700;font-size:8.5px}
+.mph .mc{padding:9px 9px 11px}
+.mph .mcard{background:#fff;border:1px solid #e7dcc6;border-radius:11px;padding:8px}
+.mph .mq{font-size:9.5px;font-weight:700;color:#201f1d;line-height:1.3}
+.mph .mo{display:flex;align-items:center;gap:6px;font-size:10px;font-weight:700;padding:7px 8px;border-radius:8px;margin-top:6px}
+.mph .mo.go{background:#135451;color:#f4efe3}
+.mph .mo.go .k{background:#ee6c4d;color:#0d3a39}
+.mph .mo .k{width:14px;height:14px;border-radius:4px;display:grid;place-items:center;font-size:8px}
+.after .txt{font-size:13.5px;line-height:1.5;color:#eef3ef}
+.after .txt b{color:#ffb199}
+</style></head><body>
+<div class="c"><div class="in">
+  <div class="col before">
+    <div class="tag"><span class="d"></span>Without the bridge</div>
+    <div class="lede">You left for a meeting. Eight minutes in, the agent needs a yes — and no one is at the desk.</div>
+    <div class="term"><div class="bar"><s></s><s></s><s></s><span>bedrock · infra — terminal tab you left open</span></div>
+      <div class="bd"><span class="dim">● Running migration…</span><br>
+      <span class="q">Do you want to proceed?</span><br>
+      <span class="p">❯ 1.</span> Yes&nbsp;&nbsp;<span class="dim">2. No</span><br>
+      <span class="dim">waiting for input </span><span class="cur">█</span></div></div>
+    <div class="wait"><span class="pill">⏳ 48 min idle</span> nothing done since you walked away</div>
+  </div>
+
+  <div class="col after">
+    <div class="tag"><span class="d"></span>With <span style="font-family:'Bricolage Grotesque';">ccBridger</span></div>
+    <div class="lede">The same question finds you in the Claude app you already have. One tap, back to work.</div>
+    <div class="mini">
+      <div class="mph">
+        <div class="mh">infra · Bedrock<small>Remote Control</small></div>
+        <div class="mc"><div class="mcard">
+          <div class="mq">Do you want to proceed?</div>
+          <div class="mo go"><span class="k">1</span>Approve</div>
+        </div></div>
+      </div>
+      <div class="txt">The prompt stays live in the terminal the whole time.<br>Your tap writes <b>decision.json</b>; the session unblocks and keeps going.<br><br><b>≈ 10 seconds</b>, from wherever you are.</div>
+    </div>
+  </div>
+</div></div>
+</body></html>
