@@ -1,10 +1,12 @@
-# You Walked Away From Your Desk. Your Coding Agent Is Still Waiting for a "Yes".
+# Remote Control for API-Based Claude Code: Approve Bedrock, Vertex & Foundry Sessions From Your Phone
 
-### Why Claude Code sessions on Bedrock, Vertex and Foundry are stuck in the terminal — and how I gave them a remote control with hooks, a file queue and one Python file
+### Claude Code's Remote Control needs a Claude subscription login, so API-provider sessions are stuck in the terminal — here's how I gave them one back with hooks, a file queue and a single Python file
 
 ![ccBridger — Remote Control for API-based Claude Code sessions: Bedrock, Vertex, Foundry](assets/hero-7.jpg)
 
-> **TL;DR** — Claude Code's Remote Control needs a Claude subscription login. Sessions that run through an API provider — AWS Bedrock, Google Vertex AI, Microsoft Foundry — don't get it, so a single permission prompt can stall an hour of work while you are in a meeting. ccBridger is a small open-source bridge: hooks record what the session needs, a tiny helper session shows it in the Claude mobile app as a native prompt, and your tap goes back to the terminal. No server, no open ports, standard library only.
+> **TL;DR** — Claude Code's Remote Control needs a Claude subscription login. Sessions that run through an API provider — AWS Bedrock, Google Vertex AI, Microsoft Foundry — don't get it, so a single permission prompt can stall an hour of work while you are in a meeting.
+> ccBridger is a small open-source bridge: hooks record what the session needs, a tiny helper session shows it in the Claude mobile app as a native prompt, and your tap goes back to the terminal.
+> No server, no open ports, no additional application, standard library only.
 >
 > 🔗 **[github.com/fxerkan/ccbridger](https://github.com/fxerkan/ccbridger)**
 
@@ -26,7 +28,7 @@ The other failure mode is worse. To avoid the stall, people start sessions with 
 
 And it isn't only permissions. Agents ask real questions too: *"The upgrade can't be rolled back. Test workspace first, or straight to prod?"* That is exactly the decision you want to make yourself, and exactly the one that sits unanswered while you are away.
 
-![Without the bridge the prompt waits at an empty desk; with it, you approve from your phone](assets/hero-3.png)
+![The same prompt, two outcomes: without the bridge it waits at an empty desk for 48 minutes; with ccBridger the answer costs ten seconds from your phone](assets/fig-flow.png)
 
 ## An analogy before the tech
 
@@ -51,14 +53,16 @@ Remote Control doesn't work for the API-based session. But it works fine for a *
 
 Three pieces make that work.
 
+![ccBridger architecture — a permission request leaves the API-based session through hooks, lands in a plain-file queue, and after 15 seconds a relay session running on your own Claude login carries it to the Claude mobile app; your tap maps back to a decision file and unblocks the terminal](assets/fig-architecture.png)
+
 ### 1. Hooks on the API-based session
 
 Claude Code runs hooks — shell commands — at defined points. `ccb install` adds five of them:
 
-| Hook | What ccBridger does with it |
-|---|---|
-| `PermissionRequest` | Writes the request (tool, input) to a file, then waits for a decision file. The terminal prompt stays live the whole time. |
-| `Stop`, `SessionStart`, `UserPromptSubmit`, `Notification` | Keep one background *waiter* per session alive. |
+| Hook                                                               | What ccBridger does with it                                                                                                |
+| ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| `PermissionRequest`                                              | Writes the request (tool, input) to a file, then waits for a decision file. The terminal prompt stays live the whole time. |
+| `Stop`, `SessionStart`, `UserPromptSubmit`, `Notification` | Keep one background*waiter* per session alive.                                                                           |
 
 The decision goes back as the hook's JSON output:
 
@@ -94,6 +98,8 @@ A few things about that line matter:
 
 There is one relay per bridged session and it stays open, so the conversation on the phone becomes a readable history: what was asked, what I answered, in order. Its title follows the topic of the latest request.
 
+![In the Claude mobile app: a blocked permission request from a Bedrock session arrives as a native Approve/Reject prompt, and a two-way conversation with a Vertex session where an AskUserQuestion is answered by option number](assets/fig-mobile.png)
+
 ## Questions, and why answers are mapped by position
 
 When the bridged session calls `AskUserQuestion`, the relay asks the same question with the same options. Early on I noticed the small relay model sometimes shortened the option text. For a question like "upgrade prod now?" that is not a detail I wanted to leave to chance.
@@ -115,6 +121,20 @@ API access is often shared across a team — one AWS account, one GCP project, o
 - There is nothing central to run, patch or secure.
 
 For anything beyond the app, each person can set a `notify_cmd` in their config — a shell command that runs once per request with the title and body in its environment. That covers Slack, ntfy or a pager, per user. People without a Claude subscription can turn the relay off and answer with `ccb ok` over SSH.
+
+## This isn't just my problem — the open requests it answers
+
+I didn't invent this gap. It's one of the most-upvoted things on the Claude Code issue tracker. ccBridger doesn't *fix* Claude Code — it's a parallel sidecar, not a product change — but it covers the day-to-day need in these threads. Honestly, and partially:
+
+| Issue                                                                                                                                    | What people are asking for                                                                                             | Signal                                                | How ccBridger addresses it                                                                                                                                                               |
+| ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [**#28795** — Bedrock + AWS SSO in Remote Control](https://github.com/anthropics/claude-code/issues/28795)                         | Enterprise users on`CLAUDE_CODE_USE_BEDROCK=1` + AWS SSO want Remote Control without a separate Claude subscription. | **131 👍**, 13 comments — the flagship request | **Partial.** Delivers the everyday capability (approve/answer/message a Bedrock session from the phone) through hooks + a relay — different mechanism, not native decoupled auth. |
+| [**#90606** — Permission dialog hangs the host terminal](https://github.com/anthropics/claude-code/issues/90606)                   | A permission prompt with no one at the keyboard blocks the whole session indefinitely.                                 | Lower volume, but exactly on point                    | **Solves it.** This is the flagship feature: after 15 seconds with no local answer, the prompt is on your phone — the terminal stays live the whole time.                         |
+| [**#35637** — Permission prompts don&#39;t render on mobile](https://github.com/anthropics/claude-code/issues/35637)               | Remote Control shows the session but the actual Approve/Reject prompt never appears on the phone.                      | **30 👍**, 23 comments                          | **Solves the symptom.** API-provider prompts arrive as a native Approve/Reject card — only the exact *Approve* label counts.                                                    |
+| [**#28508** — Mobile AskUserQuestion answer doesn&#39;t return to the CLI](https://github.com/anthropics/claude-code/issues/28508) | You tap an answer on the phone and the terminal never receives it.                                                     | **27 👍**, 19 comments                          | **Solves the symptom.** The answer is mapped back *by position*, so the wording can drift on the phone but the choice can't.                                                     |
+| [**#95744** — Non-Anthropic provider + Remote Control in one session](https://github.com/anthropics/claude-code/issues/95744)      | One session that is both on an API provider*and* remote-controllable.                                                | Newer, growing                                        | **This is the whole architectural thesis** — ccBridger splits those two jobs into two processes instead of forcing one session to do both.                                        |
+
+Two honest caveats that belong right here, not buried: ccBridger **doesn't remove the subscription requirement** — it moves it to a second Claude login on the same machine (the relay). And it's **macOS/Linux + tmux**, not Windows, and ZDR/compliance setups are out of scope. If you can't run a Claude login at all, you can turn the relay off and answer with `ccb ok` over SSH, or wire a `notify_cmd` to Slack/ntfy/a pager.
 
 ## Getting started
 
@@ -165,7 +185,10 @@ The whole thing is one Python file, MIT-licensed, with no dependencies. Read it,
 ---
 
 **Links**
+
 - ⭐ GitHub: [github.com/fxerkan/ccbridger](https://github.com/fxerkan/ccbridger)
 - 📦 Install: `git clone` · `ln -s` · `ccb install --global`
 
 *If this was useful, a ⭐ on GitHub helps other people who are stuck at the same prompt find it.*
+
+*Developed by [FXerkan](https://fxerkan.com) - Code more, woory less.*
