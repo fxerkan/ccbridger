@@ -26,12 +26,12 @@ with no server, no open ports and no extra account. One Python file, standard li
 
 ## Which sessions it covers
 
-| Provider | How Claude Code is switched to it | Bridged by `--global` |
-|---|---|---|
-| AWS Bedrock | `CLAUDE_CODE_USE_BEDROCK=1` | yes |
-| Google Vertex AI | `CLAUDE_CODE_USE_VERTEX=1` | yes |
-| Microsoft Foundry | `CLAUDE_CODE_USE_FOUNDRY=1` | yes |
-| Claude subscription login | — | no: it already has Remote Control |
+| Provider                  | How Claude Code is switched to it | Bridged by`--global`            |
+| ------------------------- | --------------------------------- | --------------------------------- |
+| AWS Bedrock               | `CLAUDE_CODE_USE_BEDROCK=1`     | yes                               |
+| Google Vertex AI          | `CLAUDE_CODE_USE_VERTEX=1`      | yes                               |
+| Microsoft Foundry         | `CLAUDE_CODE_USE_FOUNDRY=1`     | yes                               |
+| Claude subscription login | —                                | no: it already has Remote Control |
 
 Nothing in the bridge is provider-specific: it works through Claude Code's hooks, which behave the same
 whichever API serves the model. A per-project install bridges that project regardless of provider.
@@ -104,15 +104,15 @@ also installed by hand, every hook runs twice.
 
 ## Use
 
-| Command | What it does |
-|---|---|
-| `ccb ls` | Live sessions: id, status (`idle` / `busy` / `ASKING`), whether the bridge is active, directory |
-| `ccb show <id> [n]` | Last n transcript entries and the full pending request |
-| `ccb send <id> <message>` | Send a message to a session; wakes it if it is idle |
-| `ccb ok <id>` · `ccb no <id> [why]` | Approve / reject the pending permission request |
-| `ccb answer <id> <n\|text>` | Answer the question the session asked |
-| `ccb open <id>` | Open the session's phone conversation without waiting for a request |
-| `ccb ask <id>` | Push the pending request to the phone right now |
+| Command                                  | What it does                                                                                          |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `ccb ls`                               | Live sessions: id, status (`idle` / `busy` / `ASKING`), whether the bridge is active, directory |
+| `ccb show <id> [n]`                    | Last n transcript entries and the full pending request                                                |
+| `ccb send <id> <message>`              | Send a message to a session; wakes it if it is idle                                                   |
+| `ccb ok <id>` · `ccb no <id> [why]` | Approve / reject the pending permission request                                                       |
+| `ccb answer <id> <n\|text>`             | Answer the question the session asked                                                                 |
+| `ccb open <id>`                        | Open the session's phone conversation without waiting for a request                                   |
+| `ccb ask <id>`                         | Push the pending request to the phone right now                                                       |
 
 `<id>` is a session id prefix or any part of the project directory name.
 
@@ -177,3 +177,5 @@ Per-user settings go in `~/.claude/ccbridger/config.json`:
 ## License
 
 MIT
+
+*Developed by [FXerkan](https://fxerkan.com) - Code more, worry. less.*
