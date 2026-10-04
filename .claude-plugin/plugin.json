@@ -9,6 +9,10 @@
   },
   "homepage": "https://github.com/fxerkan/ccbridger",
   "repository": "https://github.com/fxerkan/ccbridger",
+  "documentationUrl": "https://github.com/fxerkan/ccbridger/blob/main/README.md",
+  "supportUrl": "https://github.com/fxerkan/ccbridger/issues",
+  "privacyPolicyUrl": "https://github.com/fxerkan/ccbridger/blob/main/PRIVACY.md",
+  "termsOfServiceUrl": "https://github.com/fxerkan/ccbridger/blob/main/TERMS.md",
   "license": "MIT",
   "keywords": [
     "remote-control",
