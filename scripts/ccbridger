@@ -39,6 +39,8 @@ TEXT = {
         "language": "English", "title": "Approval", "allow": "Approve", "deny": "Reject", "delivered": "Delivered",
         "perm": "🔐 Permission request", "question": "❓ Question", "reply": "📨 Reply", "link": "📨 Connected",
         "done": "✅ %s finished a turn", "started": "📨 Session started", "first": "First prompt", "notice": "📨 Notice",
+        "resumed": "📨 Session resumed", "topic": "Topic", "status": "Status", "last_prompt": "Last prompt",
+        "last_state": "Where it stands",
         "working": "The session is working on it. Its replies, questions and permission requests show up here; "
                    "anything you write here is forwarded to it.",
         "link_body": "Whatever you write here is forwarded to the %s session and its reply shows up here. "
@@ -55,6 +57,8 @@ TEXT = {
         "language": "Turkish", "title": "Onay", "allow": "Onayla", "deny": "Reddet", "delivered": "İletildi",
         "perm": "🔐 İzin isteği", "question": "❓ Soru", "reply": "📨 Yanıt", "link": "📨 Bağlantı",
         "done": "✅ %s turu bitirdi", "started": "📨 Oturum başladı", "first": "İlk istek", "notice": "📨 Bildirim",
+        "resumed": "📨 Oturum devam ediyor", "topic": "Konu", "status": "Durum", "last_prompt": "Son istek",
+        "last_state": "Nerede kaldı",
         "working": "Oturum bu istek üzerinde çalışıyor. Yanıtları, soruları ve izin istekleri buraya düşer; "
                    "buraya yazdıkların oturuma iletilir.",
         "link_body": "Bu konuşmaya yazdıkların %s oturumuna iletilir, yanıtı burada görünür. "
@@ -161,6 +165,33 @@ def transcript(sid):
     return (glob.glob(HOME + "/projects/*/" + sid + ".jsonl") or [""])[0]
 
 
+def status_block(sid):
+    """What the session is about and where it stands, for the phone: topic, last prompt, last message."""
+    title, prompt, state = "", "", ""
+    for line in open(transcript(sid)) if transcript(sid) else []:
+        try:
+            e = json.loads(line)
+        except ValueError:
+            continue
+        if e.get("type") == "ai-title":
+            title = e.get("aiTitle") or title
+        elif e.get("type") == "user" and isinstance((e.get("message") or {}).get("content"), str):
+            c = e["message"]["content"].strip()
+            if c and not c.startswith("<"):  # skip hook feedback, task notifications, command wrappers
+                prompt = c
+        elif e.get("type") == "assistant":
+            try:
+                t = "\n".join(b.get("text", "") for b in e["message"]["content"] if b.get("type") == "text")
+            except (KeyError, TypeError):
+                continue
+            state = t if t.strip() else state
+    info = live().get(sid, {})
+    where = info.get("status", "?") + (" — " + info["waitingFor"] if info.get("waitingFor") else "")
+    rows = [("topic", short(title, 120)), ("status", where),
+            ("last_prompt", short(" ".join(prompt.split()), 400)), ("last_state", short(state, 2500))]
+    return "\n\n".join("**%s:** %s" % (T[k], v) for k, v in rows if v)
+
+
 def last_text(path):
     """Last assistant text in a transcript."""
     out = ""
@@ -252,11 +283,16 @@ def relay_post(sid, msg, title=None, create=True):
                 break
             time.sleep(1)
         if title:
-            tmux("send-keys", "-t", name, "-l", "/rename " + title)  # keep the title on the current topic
+            tmux("send-keys", "-t", name, "-l", "--", "/rename " + title)  # keep the title on the current topic
             tmux("send-keys", "-t", name, "Enter")
             time.sleep(2)
-        tmux("load-buffer", "-b", name, pf)
-        tmux("paste-buffer", "-p", "-d", "-b", name, "-t", name)
+        # typed, not pasted: a paste reaches the phone wrapped in <pasted_content> tags.
+        # Ctrl+J is a newline in the input box; a bare newline would submit half the message.
+        for i, line in enumerate(msg.split("\n")):
+            if i:
+                tmux("send-keys", "-t", name, "C-j")
+            if line:
+                tmux("send-keys", "-t", name, "-l", "--", line)  # "--": a line may start with "-"
         time.sleep(1)
         # only submit from the text box: pressing Enter on an open question would approve it
         if "Esc to cancel" not in tmux("capture-pane", "-p", "-t", name).stdout:
@@ -265,13 +301,14 @@ def relay_post(sid, msg, title=None, create=True):
     if not create:
         return
     me = "python3 %s " % os.path.realpath(__file__)
-    settings = json.dumps({"hooks": {
+    settings = json.dumps({"agentPushNotifEnabled": True, "hooks": {
         "PostToolUse": [{"matcher": "AskUserQuestion", "hooks": [{"type": "command", "command": me + "relay"}]}],
         "UserPromptSubmit": [{"hooks": [{"type": "command", "command": me + "relay-in"}]}]}})
     title = title or "%s - %s" % (T["title"], os.path.basename(live().get(sid, {}).get("cwd", "")))
-    # the relay must run on the user's own Claude login, not on the bridged session's provider
+    # the relay must run on the user's own Claude login, not on the bridged session's provider,
+    # and without the user's plugins, hooks and MCP servers: only the two hooks passed here
     cmd = ("env %s -u ANTHROPIC_MODEL -u ANTHROPIC_BASE_URL -u AWS_BEARER_TOKEN_BEDROCK "
-           "claude --model %s --tools AskUserQuestion PushNotification --settings %s --append-system-prompt %s "
+           "claude --model %s --tools AskUserQuestion PushNotification --setting-sources project --strict-mcp-config --settings %s --append-system-prompt %s "
            '-n %s --remote-control %s "$(cat %s)"' % ((" ".join("-u " + v for v in THIRD_PARTY),) + tuple(map(
                shlex.quote, (CFG.get("relay_model", "haiku"), settings, RELAY_SYSTEM, title, title, pf)))))
     # ccb types into the relay, which Claude Code would read as "the user is at this terminal"
@@ -389,9 +426,14 @@ def hook(*flags):
 
     name, proj = ev.get("hook_event_name"), os.path.basename(ev.get("cwd", ""))
     mirror = CFG.get("relay", True) and CFG.get("mirror", True)
-    if name == "UserPromptSubmit" and mirror and not os.path.exists(d + "/announced"):
+    topic = " ".join((ev.get("prompt") or "").split())
+    if name == "SessionStart" and ev.get("source") == "resume" and mirror and transcript(sid):
+        write(d + "/announced", "1")  # resumed: tell the phone what this session is and where it stands
+        relay_post(sid, "%s · %s\n\n%s\n\n%s" % (T["resumed"], proj, status_block(sid), T["working"]),
+                   relay_title(sid, None, {}, proj))
+    elif name == "UserPromptSubmit" and mirror and not os.path.exists(d + "/announced") \
+            and topic and not topic.startswith("<"):  # not hook feedback or a task notification
         write(d + "/announced", "1")  # first prompt of a session: tell the phone what it is working on
-        topic = " ".join((ev.get("prompt") or "").split())
         relay_post(sid, "%s · %s\n\n**%s:** %s\n\n%s" % (T["started"], proj, T["first"], short(topic, 900),
                                                           T["working"]),
                    "%s - %s - %s" % (T["title"], short(topic, 48), proj))
@@ -531,7 +573,8 @@ def cmd_open(key):
     """Open the session's relay conversation now: what you type there is forwarded to the session."""
     sid, info = resolve(key)
     proj = os.path.basename(info.get("cwd", ""))
-    relay_post(sid, "%s · %s\n\n%s" % (T["link"], proj, T["link_body"] % proj), relay_title(sid, None, {}, proj))
+    relay_post(sid, "%s · %s\n\n%s\n\n%s" % (T["link"], proj, status_block(sid), T["link_body"] % proj),
+               relay_title(sid, None, {}, proj))
     print("opened: tmux ccb-%s" % sid[:8])
 
 
