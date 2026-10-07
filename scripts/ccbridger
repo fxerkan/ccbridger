@@ -321,6 +321,9 @@ def relay_in():
     """UserPromptSubmit hook of the relay: forward free text typed on the phone to the real session."""
     ev = json.load(sys.stdin)
     sid, prompt = os.environ.get("CCB_TARGET", ""), (ev.get("prompt") or "").strip()
+    # a paste arrives wrapped in <pasted_content id=..> tags: unwrapped, ccb's own posts are
+    # recognised again (else the session's reply is forwarded back to it as a user message, forever)
+    prompt = re.sub(r"^<pasted_content[^>]*>\s*|\s*</pasted_content[^>]*>$", "", prompt).strip()
     if not prompt or prompt[0] in "🔐❓📨/":  # ccb's own messages and slash commands
         return
     info = live().get(sid)
@@ -658,6 +661,16 @@ def selftest():
 
     g = run("hook", "--bedrock-only", stdin=dict(perm, tool_name="Bash", tool_input={}))
     assert g.wait(5) == 0 and g.stdout.read() == ""  # not a third-party session: bridge stays out
+
+    renv = dict(env, CCB_TARGET="test-sid")  # the relay must never forward ccb's own posts, pasted or not
+    for text, forwarded in (('<pasted_content id="a1">\n📨 Reply · demo\n\nhi\n</pasted_content id="a1">', False),
+                            ('<pasted_content id="a1">\ndo it\n</pasted_content id="a1">', True)):
+        r = subprocess.run([sys.executable, __file__, "relay-in"], env=renv, input=json.dumps({"prompt": text}),
+                           capture_output=True, text=True)
+        inbox = home + "/ccbridger/sessions/test-sid/inbox"
+        assert r.returncode == 0 and os.path.exists(inbox) == forwarded
+        assert not forwarded or read(inbox).strip() == "do it"
+        rm(inbox)
 
     proj = home + "/proj"
     os.makedirs(proj + "/.claude")
